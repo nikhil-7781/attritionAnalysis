@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Attrition Prediction</title>
+    <script>
+        async function submitForm(event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const jsonData = {};
+
+            // Convert numeric fields and handle categorical one-hot encoding
+            formData.forEach((value, key) => {
+                if (key === "BusinessTravel" || key === "Department" || key === "EducationField" || key === "JobRole" || key === "MaritalStatus" || key === "OverTime" || key === "Gender") {
+                    jsonData[key] = value;
+                } else {
+                    jsonData[key] = Number(value);
+                }
+            });
+
+            // One-hot encode categorical fields
+            // For BusinessTravel
+            jsonData["BusinessTravel_Non-Travel"] = jsonData["BusinessTravel"] === "Non-Travel" ? 1 : 0;
+            jsonData["BusinessTravel_Travel_Frequently"] = jsonData["BusinessTravel"] === "Travel_Frequently" ? 1 : 0;
+            jsonData["BusinessTravel_Travel_Rarely"] = jsonData["BusinessTravel"] === "Travel_Rarely" ? 1 : 0;
+            delete jsonData["BusinessTravel"];
+
+            // For Department
+            jsonData["Department_Human Resources"] = jsonData["Department"] === "Human Resources" ? 1 : 0;
+            jsonData["Department_Research & Development"] = jsonData["Department"] === "Research & Development" ? 1 : 0;
+            jsonData["Department_Sales"] = jsonData["Department"] === "Sales" ? 1 : 0;
+            delete jsonData["Department"];
+
+            // For EducationField
+            jsonData["EducationField_Human Resources"] = jsonData["EducationField"] === "Human Resources" ? 1 : 0;
+            jsonData["EducationField_Life Sciences"] = jsonData["EducationField"] === "Life Sciences" ? 1 : 0;
+            jsonData["EducationField_Marketing"] = jsonData["EducationField"] === "Marketing" ? 1 : 0;
+            jsonData["EducationField_Medical"] = jsonData["EducationField"] === "Medical" ? 1 : 0;
+            jsonData["EducationField_Other"] = jsonData["EducationField"] === "Other" ? 1 : 0;
+            jsonData["EducationField_Technical Degree"] = jsonData["EducationField"] === "Technical Degree" ? 1 : 0;
+            delete jsonData["EducationField"];
+
+            // For JobRole
+            jsonData["JobRole_Healthcare Representative"] = jsonData["JobRole"] === "Healthcare Representative" ? 1 : 0;
+            jsonData["JobRole_Human Resources"] = jsonData["JobRole"] === "Human Resources" ? 1 : 0;
+            jsonData["JobRole_Laboratory Technician"] = jsonData["JobRole"] === "Laboratory Technician" ? 1 : 0;
+            jsonData["JobRole_Manager"] = jsonData["JobRole"] === "Manager" ? 1 : 0;
+            jsonData["JobRole_Manufacturing Director"] = jsonData["JobRole"] === "Manufacturing Director" ? 1 : 0;
+            jsonData["JobRole_Research Director"] = jsonData["JobRole"] === "Research Director" ? 1 : 0;
+            jsonData["JobRole_Research Scientist"] = jsonData["JobRole"] === "Research Scientist" ? 1 : 0;
+            jsonData["JobRole_Sales Executive"] = jsonData["JobRole"] === "Sales Executive" ? 1 : 0;
+            jsonData["JobRole_Sales Representative"] = jsonData["JobRole"] === "Sales Representative" ? 1 : 0;
+            delete jsonData["JobRole"];
+
+            // For MaritalStatus
+            jsonData["MaritalStatus_Single"] = jsonData["MaritalStatus"] === "Single" ? 1 : 0;
+            jsonData["MaritalStatus_Married"] = jsonData["MaritalStatus"] === "Married" ? 1 : 0;
+            jsonData["MaritalStatus_Divorced"] = jsonData["MaritalStatus"] === "Divorced" ? 1 : 0;
+            delete jsonData["MaritalStatus"];
+
+            // For OverTime
+            jsonData["OverTime_No"] = jsonData["OverTime"] === "0" ? 1 : 0;
+            jsonData["OverTime_Yes"] = jsonData["OverTime"] === "1" ? 1 : 0;
+            delete jsonData["OverTime"];
+
+            // For Gender
+            jsonData["Gender_Female"] = jsonData["Gender"] === "Female" ? 1 : 0;
+            jsonData["Gender_Male"] = jsonData["Gender"] === "Male" ? 1 : 0;
+            delete jsonData["Gender"];
+
+            // Static field for Over18
+            jsonData["Over18_Y"] = 1;
+
+            const response = await fetch('http://localhost:3000/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(jsonData),
+            });
+
+            const result = await response.json();
+            alert(`Attrition Prediction: ${result.AttritionPrediction}\nAttrition Probability: ${result.AttritionProbability}`);
+        }
+    </script>
+</head>
+<body>
+    <h1>Employee Attrition Prediction</h1>
+    <form onsubmit="submitForm(event)">
+        <!-- Numeric Inputs -->
+        <label for="Age">Age:</label>
+        <input type="number" id="Age" name="Age" required><br><br>
+
+        <label for="DailyRate">Daily Rate:</label>
+        <input type="number" id="DailyRate" name="DailyRate" required><br><br>
+
+        <label for="DistanceFromHome">Distance From Home:</label>
+        <input type="number" id="DistanceFromHome" name="DistanceFromHome" required><br><br>
+
+        <label for="Education">Education (1-5):</label>
+        <input type="number" id="Education" name="Education" min="1" max="5" required><br><br>
+
+        <label for="EmployeeCount">Employee Count:</label>
+        <input type="number" id="EmployeeCount" name="EmployeeCount" required><br><br>
+
+        <label for="EmployeeNumber">Employee Number:</label>
+        <input type="number" id="EmployeeNumber" name="EmployeeNumber" required><br><br>
+
+        <label for="EnvironmentSatisfaction">Environment Satisfaction (1-4):</label>
+        <input type="number" id="EnvironmentSatisfaction" name="EnvironmentSatisfaction" min="1" max="4" required><br><br>
+
+        <label for="HourlyRate">Hourly Rate:</label>
+        <input type="number" id="HourlyRate" name="HourlyRate" required><br><br>
+
+        <label for="JobInvolvement">Job Involvement (1-4):</label>
+        <input type="number" id="JobInvolvement" name="JobInvolvement" min="1" max="4" required><br><br>
+
+        <label for="JobLevel">Job Level:</label>
+        <input type="number" id="JobLevel" name="JobLevel" required><br><br>
+
+        <label for="JobSatisfaction">Job Satisfaction (1-4):</label>
+        <input type="number" id="JobSatisfaction" name="JobSatisfaction" min="1" max="4" required><br><br>
+
+        <label for="MonthlyIncome">Monthly Income:</label>
+        <input type="number" id="MonthlyIncome" name="MonthlyIncome" required><br><br>
+
+        <label for="MonthlyRate">Monthly Rate:</label>
+        <input type="number" id="MonthlyRate" name="MonthlyRate" required><br><br>
+
+        <label for="NumCompaniesWorked">Number of Companies Worked:</label>
+        <input type="number" id="NumCompaniesWorked" name="NumCompaniesWorked" required><br><br>
+
+        <label for="PercentSalaryHike">Percent Salary Hike:</label>
+        <input type="number" id="PercentSalaryHike" name="PercentSalaryHike" required><br><br>
+
+        <label for="PerformanceRating">Performance Rating (1-4):</label>
+        <input type="number" id="PerformanceRating" name="PerformanceRating" min="1" max="4" required><br><br>
+
+        <label for="RelationshipSatisfaction">Relationship Satisfaction (1-4):</label>
+        <input type="number" id="RelationshipSatisfaction" name="RelationshipSatisfaction" min="1" max="4" required><br><br>
+
+        <label for="StandardHours">Standard Hours:</label>
+        <input type="number" id="StandardHours" name="StandardHours" required><br><br>
+
+        <label for="StockOptionLevel">Stock Option Level:</label>
+[_{{{CITATION{{{_1{](https://github.com/buribalazs/smooth-drag-order/tree/7b40d21d076c3e31765f61481f537beaf4c5ec9f/README.md)[_{{{CITATION{{{_2{](https://github.com/hsAyon/JobPortal_Final/tree/2e714a222cbfd599d74229088b5e47b5d291026c/Employee%2FEmployeeProfile.php)
