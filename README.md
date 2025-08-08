@@ -26,7 +26,6 @@ Attrition prediction enables HR teams to implement **proactive retention strateg
 ## 🛠 Methodology
 
 ### **Workflow**
-![Pipeline](results/pipeline.png)
 
 1. **Data Preprocessing** — Handle missing values, encode categorical features, normalize numerical variables.  
 2. **Exploratory Data Analysis** — Attrition breakdowns by demographics, role, income, work-life balance, etc.  
